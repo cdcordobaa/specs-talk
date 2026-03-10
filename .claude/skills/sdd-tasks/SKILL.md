@@ -1,3 +1,8 @@
+---
+name: sdd-tasks
+description: Phase 3 of SDD — break plan.md into small, verifiable TDD work items and write task.md. Use AFTER sdd-plan is complete.
+---
+
 # Skill: SDD Tasks
 
 ## When to use

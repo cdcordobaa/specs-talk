@@ -1,3 +1,8 @@
+---
+name: sdd-iterate
+description: Phase 6 of SDD — handle requirement changes or spec corrections by flowing changes top-down through constitution → spec → plan → tasks → code. Use when requirements change or verification reveals a spec-level problem.
+---
+
 # Skill: SDD Iterate
 
 ## When to use

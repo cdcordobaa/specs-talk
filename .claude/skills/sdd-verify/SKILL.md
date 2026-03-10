@@ -1,3 +1,8 @@
+---
+name: sdd-verify
+description: Phase 5 of SDD — run all tests, check architecture compliance, and produce evidence.md. Use AFTER sdd-implement cycles to validate project health.
+---
+
 # Skill: SDD Verify
 
 ## When to use

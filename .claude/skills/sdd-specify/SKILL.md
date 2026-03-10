@@ -1,3 +1,8 @@
+---
+name: sdd-specify
+description: Phase 1 of SDD — gather intent, define constraints, create spec.md and Gherkin feature files. Use at the START of any new feature before planning or implementation.
+---
+
 # Skill: SDD Specify (BDD)
 
 ## When to use

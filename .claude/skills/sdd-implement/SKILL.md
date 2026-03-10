@@ -1,3 +1,8 @@
+---
+name: sdd-implement
+description: Phase 4 of SDD — implement tasks using strict TDD (Red → Green → Refactor). Use AFTER sdd-tasks is complete and task.md has unchecked items.
+---
+
 # Skill: SDD Implement (TDD)
 
 ## When to use

@@ -1,3 +1,8 @@
+---
+name: sdd-plan
+description: Phase 2 of SDD — translate spec.md into architecture decisions, component definitions, and interface contracts. Use AFTER sdd-specify is complete.
+---
+
 # Skill: SDD Plan
 
 ## When to use
