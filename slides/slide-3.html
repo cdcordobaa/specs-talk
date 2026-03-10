@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Core Cycle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            background-color: #121212;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .slide-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('assets/slide-3.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(60%); /* Darken the image */
+            z-index: 1;
+        }
+
+        .content-container {
+            position: relative;
+            z-index: 2;
+            width: 80%;
+            max-width: 800px; /* Maximum content width */
+            margin: 0 auto;
+            padding: 40px;
+            text-align: left; /* Align text to the left */
+        }
+
+        .slide-title {
+            font-size: 4em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease-out forwards 0.3s;
+        }
+
+        .content-list {
+            list-style: none;
+            padding: 0;
+            font-size: 2.2em; /* Slightly smaller than original */
+            line-height: 1.8;
+            font-weight: 300;
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards 0.6s;
+            color: #eee; /* Slightly lighter text color */
+        }
+
+        .content-list li::before {
+            content: '\2022';
+            color: #64b5f6; /* A modern accent color */
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Added gradient overlay */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.7) 75%, rgba(0, 0, 0, 0.9) 100%);
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div class="background-image"></div>
+        <div class="content-container">
+            <h1 class="slide-title">The Core Cycle</h1>
+            <ul class="content-list">
+                <li>Specify</li>
+                <li>Plan</li>
+                <li>Task</li>
+                <li>Implement</li>
+                <li>Verify</li>
+                <li>Iterate</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

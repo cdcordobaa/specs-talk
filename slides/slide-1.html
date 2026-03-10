@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SDD Quick Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Outfit', sans-serif;
+    background-color: #1a1a1a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.image-panel {
+    width: 50%;
+    height: 100%;
+    background-image: url('assets/slide-1.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.content-panel {
+    width: 50%;
+    height: 100%;
+    background-color: #252525;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+h1 {
+    font-size: 4em;
+    font-weight: 700;
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideUp 0.5s ease-out forwards 0.3s;
+}
+
+p {
+    font-size: 1.5em;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards 0.6s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="image-panel"></div>
+    <div class="content-panel">
+        <h1>SDD Quick Demo</h1>
+        <p>This is a short version for testing the pipeline.</p>
+    </div>
+</div>
+
+</body>
+</html>
