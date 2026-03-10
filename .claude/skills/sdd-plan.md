@@ -7,6 +7,7 @@ Use this skill AFTER the `sdd-specify` phase is complete (i.e., `spec.md` and `.
 Translate the specification into **architecture decisions**, **component definitions**, and **interface contracts**.
 
 ## Inputs
+- `constitution.md` — Project-level immutable rules (MUST be read before starting)
 - `spec.md`
 - `features/*.feature`
 
@@ -14,6 +15,13 @@ Translate the specification into **architecture decisions**, **component definit
 - `plan.md` — Architecture plan document
 
 ## Process
+
+### 0. Read the Constitution
+**Before doing anything else**, read `constitution.md`. The constitution defines:
+- Architecture rules that the plan MUST follow (e.g., dependency injection, central interfaces)
+- Technology stack choices (libraries, frameworks, test tools)
+- Forbidden patterns the architecture must prevent
+- The ⚠️ "Ask first" tier — flag any plan decisions that require user approval (new dependencies, interface changes)
 
 ### 1. Read the Spec
 Read `spec.md` and all `.feature` files. Identify:
@@ -30,6 +38,9 @@ For each component, document:
 - **Output interface**: TypeScript type/interface for what it returns
 - **Side effects**: None, or list them (e.g., "calls Gemini API")
 - **Testability**: How it can be tested (pure function, mocked dependency, etc.)
+- **Injectable knobs**: Any constructor parameter made injectable for testability (per constitution)
+
+If the constitution defines a **central interface** (e.g., `GeminiClient`), include its full TypeScript signature with SDK call patterns and response shapes in the plan.
 
 ### 3. Define Data Flow
 Show how data moves through the pipeline:
@@ -67,7 +78,13 @@ Create a `plan.md` at the project root:
 - [List of external services, APIs, libraries]
 
 ## File Structure
-[Proposed directory/file layout]
+[Proposed directory/file layout — include ALL files: source, tests, config, entry points]
+
+## Testing Conventions
+[Test library, file naming pattern, BDD framework, mocking strategy — per constitution]
+
+## Project Configuration
+[Essential tsconfig.json, jest config, .env.example — per constitution]
 ```
 
 ## Rules

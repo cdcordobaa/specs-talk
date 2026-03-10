@@ -7,6 +7,7 @@ Use this skill AFTER the `sdd-plan` phase is complete (i.e., `plan.md` exists). 
 Break the architecture plan into **small, verifiable work items** that can be implemented one at a time using TDD.
 
 ## Inputs
+- `constitution.md` — Project-level immutable rules (MUST be read before starting)
 - `plan.md`
 - `features/*.feature`
 
@@ -14,6 +15,12 @@ Break the architecture plan into **small, verifiable work items** that can be im
 - `task.md` — A checklist of implementation tasks
 
 ## Process
+
+### 0. Read the Constitution
+**Before doing anything else**, read `constitution.md`. The constitution defines:
+- Forbidden patterns that tasks must not introduce
+- Architecture rules that constrain task ordering (e.g., "central interfaces first")
+- Technology stack choices that affect setup tasks
 
 ### 1. Read the Plan
 Read `plan.md`. For each component, identify the minimal set of tasks needed to implement it.

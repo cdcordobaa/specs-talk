@@ -2,7 +2,7 @@
 
 ## Setup
 - [x] Initialize project, install dependencies (including `@google/genai`), configure test runner if not done already.
-- [x] Set up a mock interface/wrapper for `@google/genai` (in `src/geminiClient.ts`) to be injected into both generator stages.
+- [x] Set up a mock interface/wrapper for `@google/genai` (in `src/geminiClient.ts`) to be injected into all three stages.
 
 ## Shared Types
 - [x] Create `src/types.ts` defining `Slide` and `SlideDeck` interfaces as defined in the plan.
@@ -16,12 +16,12 @@
 - [x] Implement `ImageGenerator` in `src/imageGenerator.ts` to call the (mocked) API, update slides with base64 data, handle failures gracefully, and pass all tests.
 
 ## HTML Composer
-- [/] Update `src/htmlComposer.test.ts` with new BDD scenarios for LLM-generated HTML (mocked Gemini call, fallback on failure, empty deck does not call API).
-- [ ] Update `src/htmlComposer.ts` to accept a `GeminiClient`, define `HTML_GENERATION_PROMPT` as a module constant, and call the LLM per-slide with rendered prompt variables.
-- [ ] Implement graceful fallback to static template when the HTML generation LLM call fails.
-- [ ] Update `src/pipeline.ts` to inject the `GeminiClient` into the `HTMLComposer` constructor.
+- [x] Write BDD tests for `HTMLComposer` in `src/htmlComposer.test.ts` based on `features/html_composer.feature`, with mocked Gemini client and mocked file system.
+- [x] Implement `HTMLComposer` in `src/htmlComposer.ts` to accept a `GeminiClient`, define `HTML_GENERATION_PROMPT` as a module constant, call the LLM per-slide, save images to `assets/`, and write HTML files.
+- [x] Implement graceful fallback to static template when the HTML generation LLM call fails.
+- [x] Update `src/pipeline.ts` to inject the `GeminiClient` into the `HTMLComposer` constructor.
 
 ## Integration
 - [x] Wire all three stages (Content Generator → Image Generator → HTML Composer) into an orchestrator in `src/pipeline.ts`, passing the `input/` and `slides/` paths appropriately.
-- [x] Create an integration test or entry point script to verify end-to-end execution.
+- [x] Create CLI entry point `src/index.ts` with dotenv integration and process.argv handling.
 - [x] Perform a manual end-to-end run with sample markdown files in an actual `input/` folder to verify the complete HTML files in `slides/`.

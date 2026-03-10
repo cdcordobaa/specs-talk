@@ -7,6 +7,7 @@ Use this skill AFTER one or more `sdd-implement` cycles are complete. This is Ph
 Run all tests, perform static analysis, and verify architecture rules. Produce an **evidence bundle** that proves the implementation is correct and complete.
 
 ## Inputs
+- `constitution.md` — Project-level immutable rules (MUST be read before starting)
 - All source code in `src/`
 - All test files
 - `spec.md`, `plan.md`, `task.md`
@@ -16,6 +17,9 @@ Run all tests, perform static analysis, and verify architecture rules. Produce a
 - `evidence.md` — Evidence bundle document
 
 ## Process
+
+### 0. Read the Constitution
+**Before doing anything else**, read `constitution.md`. During verification, you will check compliance against constitution rules in addition to spec/plan alignment.
 
 ### 1. Run All Tests
 ```bash
@@ -81,6 +85,16 @@ Create or update `evidence.md` at the project root:
 
 ## Outstanding Issues
 - [List any issues, or "None"]
+
+## Constitution Compliance
+- [x] All LLM prompts are version-controlled in spec.md and stored as named constants
+- [x] Exact model identifiers are documented in spec.md
+- [x] No real API calls in tests — all external deps are mocked
+- [x] No hardcoded API keys or secrets in source code
+- [x] All stages use dependency injection for external services
+- [x] Injectable test knobs used for rate limiting delays
+- [x] No forbidden patterns present (no `any` types, no direct SDK usage in stages)
+- [ ] [Any violations found]
 ```
 
 ## Rules

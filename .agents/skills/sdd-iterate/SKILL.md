@@ -9,7 +9,10 @@ description: How to iterate on feedback by fixing the right artifact first
 Use this skill when requirements change, a new constraint is discovered, or verification reveals a spec-level problem. This is Phase 6 of the SDD Pipeline.
 
 ## Purpose
-Ensure that changes flow **top-down through the artifact chain**: spec → plan → tasks → code. Never hack the code directly when the real problem is in the spec.
+Ensure that changes flow **top-down through the artifact chain**: constitution → spec → plan → tasks → code. Never hack the code directly when the real problem is in the spec. Never override constitution rules in a spec.
+
+## Inputs
+- `constitution.md` — Project-level immutable rules (MUST be read before starting)
 
 ## The Golden Rule
 
@@ -42,6 +45,14 @@ A requirement changed or a test fails unexpectedly
 │   │
 │   └─ (This is essentially a mini SDD cycle: Specify → Plan → Tasks → Implement)
 │
+├─ Is a CONSTITUTION RULE wrong? (a project-level principle needs changing)
+│   │
+│   ├─ Update `constitution.md` FIRST
+│   │   Then cascade: update spec.md, plan.md, task.md, and code
+│   │   This is the most impactful change — requires explicit user approval (⚠️ tier)
+│   │
+│   └─ (Always start from the highest affected artifact)
+│
 └─ Is a CONSTRAINT changing? (e.g., different API, new performance requirement)
     │
     ├─ Update the Constraints section of spec.md
@@ -61,10 +72,11 @@ A requirement changed or a test fails unexpectedly
 
 ### 2. Update Artifacts Top-Down
 Always follow this order:
-1. `spec.md` + `features/*.feature` (if behavior changes)
-2. `plan.md` (if architecture is affected)
-3. `task.md` (add/modify tasks)
-4. Implementation (using `sdd-implement` skill)
+1. `constitution.md` (if a project-level principle changes — requires ⚠️ approval)
+2. `spec.md` + `features/*.feature` (if behavior changes)
+3. `plan.md` (if architecture is affected)
+4. `task.md` (add/modify tasks)
+5. Implementation (using `sdd-implement` skill)
 
 ### 3. Verify
 After implementing changes, use the `sdd-verify` skill to confirm everything is consistent.

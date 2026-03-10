@@ -7,6 +7,7 @@ Use this skill AFTER the `sdd-tasks` phase is complete (i.e., `task.md` exists w
 Implement each task using strict **Test-Driven Development** (Red → Green → Refactor).
 
 ## Inputs
+- `constitution.md` — Project-level immutable rules (MUST be read before starting)
 - `task.md` — Pick the next unchecked `- [ ]` task
 - `features/*.feature` — The Gherkin scenarios that define expected behavior
 - `plan.md` — The architecture and interfaces to follow
@@ -17,6 +18,12 @@ Implement each task using strict **Test-Driven Development** (Red → Green → 
 - Updated `task.md` with completed items marked `- [x]`
 
 ## The TDD Cycle
+
+### 0. Read the Constitution
+**Before writing any code**, read `constitution.md`. Pay special attention to:
+- **Forbidden patterns** — things you must NEVER do during implementation (e.g., no `any` type, no direct SDK usage, no hardcoded keys)
+- **Architecture rules** — dependency injection patterns, central interfaces to follow
+- **"Always do" rules** — version-controlled prompts must come from `spec.md`, not be invented
 
 ### 1. RED — Write Failing Tests First
 - Read the Gherkin scenario(s) relevant to the current task

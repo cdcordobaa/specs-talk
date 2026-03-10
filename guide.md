@@ -8,6 +8,7 @@
 
 | **Phase** | **What happens** | **Output** |
 | --- | --- | --- |
+| **0. Constitution** | Define immutable project-level rules | `constitution.md` |
 | **1. Specify (BDD)** | Define intent, constraints, Gherkin scenarios | `spec.md`, `.feature` files |
 | **2. Plan** | Architecture decisions, components, interfaces | `plan.md` |
 | **3. Tasks** | Small, verifiable work items | `task.md` |
@@ -19,17 +20,40 @@ We run this pipeline **twice**: once for the backend pipeline, once for the Reac
 
 ---
 
-## Phase 0: Project Setup (~2 min)
+## The Constitution Pattern
 
-### Prompt 1: Create the project
+The constitution is a project-level `constitution.md` file containing **immutable principles** — architecture rules, technology stack, coding conventions, and forbidden patterns — that apply to *every* spec and *every* task. Think of it as a `.eslintrc` for intent.
+
+**The cascading context chain:**
+```
+Constitution → Specification → Plan → Tasks → Implementation
+   (guards every phase automatically via SDD skills)
+```
+
+Every SDD skill reads `constitution.md` as **Step 0** before doing anything else. The constitution uses a **three-tier boundary system**:
+
+| Tier | Meaning | Examples |
+|------|---------|----------|
+| ✅ **Always do** | Agent proceeds without asking | Version-control all LLM prompts. Specify exact model IDs. Use dependency injection. |
+| ⚠️ **Ask first** | Agent pauses for human approval | Adding new dependencies. Changing the GeminiClient interface. |
+| 🚫 **Never do** | Hard stop — categorically forbidden | Commit secrets. Call real APIs in tests. Write code without a spec. |
+
+> [!WARNING]
+> If `constitution.md` does not exist when an SDD skill is invoked, the agent will pause and ask whether to create one first.
+
+---
+
+## Phase 0: Project Setup + Constitution (~3 min)
+
+### Prompt 1: Create the project and constitution
 
 ```text
 Create a new TypeScript project called "slide-creator" with:
 - A src/ directory for backend pipeline code
-- Jest configured with ts-jest
+- Jest configured with ts-jest and jest-cucumber for Gherkin-based BDD tests
 - @google/genai as a dependency
+- dotenv for .env file support
 - React + Vite for the frontend (separate from backend pipeline)
-- jest-cucumber for Gherkin-based tests
 
 Create an INSTRUCTIONS.md at the root:
 
@@ -37,22 +61,26 @@ Create an INSTRUCTIONS.md at the root:
 
 ## Project Overview
 An app that turns raw content into a styled slide presentation with AI-generated images.
-Backend: 3-stage pipeline (Content Parser → Image Generator → HTML Composer).
+Backend: 3-stage pipeline (Content Generator → Image Generator → HTML Composer).
 Frontend: React app with input form and slide preview.
 
 ## Workflow (STRICT)
-Follow the 6-step SDD pipeline for ALL work:
-1. Specify → 2. Plan → 3. Tasks → 4. Implement → 5. Verify → 6. Iterate
-NEVER write code without a spec and a plan first.
+Follow the SDD pipeline for ALL work:
+0. Constitution → 1. Specify → 2. Plan → 3. Tasks → 4. Implement → 5. Verify → 6. Iterate
+NEVER write code without a constitution, a spec, and a plan first.
+
+Also create:
+- A .env.example with GEMINI_API_KEY=your_api_key_here
+- A constitution.md with immutable project rules (see the constitution pattern)
 ```
 
-> **What happens:** Agent scaffolds the project, installs deps, creates INSTRUCTIONS.md.
+> **What happens:** Agent scaffolds the project, installs deps, creates INSTRUCTIONS.md, .env.example, and `constitution.md` with the three-tier boundary system (Always/Ask/Never), architecture rules, technology stack, and forbidden patterns.
 
 ---
 
 ## Spec 1: The Backend Pipeline (~16 min)
 
-This covers the 3-stage pipeline: Content Parser, Image Generator, HTML Composer. We run the full SDD cycle here.
+This covers the 3-stage pipeline: Content Generator, Image Generator, HTML Composer. We run the full SDD cycle here.
 
 ---
 
@@ -63,26 +91,64 @@ Use the sdd-specify skill to create the specification for the backend pipeline.
 
 The pipeline has three stages, each a service with a clean contract:
 
-Stage 1: Content Parser — Takes raw content (markdown or plain text) and produces a structured slide deck object. Each slide gets a title, bullet points or body text, speaker notes, and an "image prompt" field describing what visual would complement the content.
+Stage 1: Content Generator — Reads markdown files from an input/ folder, combines 
+them, and calls the Gemini API (model: gemini-2.0-flash) to produce a structured 
+slide deck. Each slide gets a title, bullet points or body text, speaker notes, and 
+an "image prompt" field. The LLM prompt must be version-controlled as a constant 
+called CONTENT_GENERATION_PROMPT in the module. The prompt must instruct the LLM 
+to output strictly as JSON matching the SlideDeck interface. LLM responses must be 
+cleaned of markdown code fences before JSON parsing.
 
-Stage 2: Image Generator — Takes the image prompt from each slide and calls Gemini (via @google/genai) to generate an image. Returns base64 image data. Handles failures gracefully with a fallback placeholder.
+Stage 2: Image Generator — Takes the image prompt from each slide and calls Gemini 
+(model: imagen-4.0-fast-generate-001, via @google/genai's generateImages method) to 
+generate an image. Returns base64 image data. Handles failures gracefully with a 
+fallback placeholder. Must implement a configurable delay (default 6100ms) between 
+calls to respect Gemini free-tier rate limits (10 RPM). The delay must be injectable 
+via constructor so tests can pass 0.
 
-Stage 3: HTML Composer — Takes the slide deck (now with images) and renders it into styled HTML. Each slide becomes a section with title, content area, image with alt text derived from the prompt, and slide number.
+Stage 3: HTML Composer — Takes the slide deck (now with images) and, for each slide, 
+saves the image to slides/assets/ as a .jpg file, then calls the Gemini API with a 
+designer-quality prompt (stored as HTML_GENERATION_PROMPT constant) to generate a 
+stunning, self-contained HTML slide. The LLM receives the slide title, content, 
+speaker notes, relative image path, and slide number. It must creatively integrate 
+the image (hero, split-pane, background, floating card, etc.). Falls back to a 
+static template if the API fails. Outputs one .html file per slide.
 
-Include Gherkin scenarios for all three stages. The Content Parser and HTML Composer are pure transformations. The Image Generator has an external dependency that must be mockable.
+All three stages depend on a shared GeminiClient interface with two methods:
+- generateContent(prompt: string): Promise<string>
+- generateImageBase64(prompt: string): Promise<string>
+
+This interface must be defined in the spec and plan. The DefaultGeminiClient 
+implementation wraps @google/genai. For generateImages, the SDK response shape is:
+response.generatedImages[0].image.imageBytes (this is non-obvious and must be 
+documented).
+
+Include Gherkin scenarios for all three stages. The Content Generator and HTML 
+Composer have external dependencies (Gemini API + file system). The Image Generator  
+has an external dependency that must be mockable.
 ```
 
-> **What happens:** Agent creates `spec.md` with intent/constraints and `features/content-parser.feature`, `features/image-generator.feature`, `features/html-composer.feature` with happy paths, edge cases, and error scenarios.
+> **What happens:** Agent creates `spec.md` with intent, constraints, **model configuration table**, **both versioned LLM prompts**, rate limiting constraint, response cleaning constraint, and `features/*.feature` files with happy paths, edge cases, and error scenarios.
+
+> [!WARNING]
+> **Check that `spec.md` includes**: (1) exact model names, (2) both full LLM prompts, (3) the GeminiClient interface, (4) rate limiting strategy, (5) response cleaning requirement. If any are missing, ask the agent to add them before proceeding.
 
 ---
 
 ### Step 2: Plan (~1 min)
 
 ```text
-Use the sdd-plan skill to plan the architecture based on our spec.
+Use the sdd-plan skill to plan the architecture based on our spec. Make sure to 
+include the full GeminiClient interface and DefaultGeminiClient skeleton (with the 
+exact SDK call patterns and response shapes), the Pipeline orchestrator, the CLI 
+entry point (index.ts), testing conventions (jest-cucumber, mocking strategy, 
+injectable delayMs), and essential project config (tsconfig.json, jest.config.ts).
 ```
 
-> **What happens:** Agent creates `plan.md` with three components, their TypeScript interfaces, data flow diagram, and testing strategy (pure vs mocked).
+> **What happens:** Agent creates `plan.md` with the full GeminiClient wrapper code, three stage components, Pipeline orchestrator, CLI entry point, testing conventions, and project config.
+
+> [!WARNING]
+> **Check that `plan.md` includes**: (1) `GeminiClient` interface with full TypeScript signature, (2) `DefaultGeminiClient` with SDK call patterns, (3) `index.ts` CLI entry point contract, (4) testing conventions section, (5) `tsconfig.json` and `jest.config.ts` settings.
 
 ---
 
@@ -92,17 +158,17 @@ Use the sdd-plan skill to plan the architecture based on our spec.
 Use the sdd-tasks skill to break the plan into a task list.
 ```
 
-> **What happens:** Agent creates `task.md` with ordered checklist: shared types → parser tests → parser impl → image gen mock + tests → image gen impl → composer tests → composer impl.
+> **What happens:** Agent creates `task.md` with ordered checklist: GeminiClient wrapper → shared types → Content Generator tests → Content Generator impl → Image Generator tests → Image Generator impl → HTML Composer tests → HTML Composer impl → Pipeline orchestrator → CLI entry point.
 
 ---
 
-### Step 4: Implement — Content Parser (~4 min)
+### Step 4: Implement — Content Generator (~4 min)
 
 ```text
-Use the sdd-implement skill to implement the Content Parser.
+Use the sdd-implement skill to implement the Content Generator.
 ```
 
-> **What happens:** Agent writes failing tests mapped to the Gherkin scenarios (RED), implements the parser as a pure function (GREEN), and cleans up (REFACTOR). **This is the TDD moment — point it out to the audience.**
+> **What happens:** Agent writes failing tests mapped to the Gherkin scenarios (RED), implements the generator using the versioned prompt from spec.md (GREEN), and cleans up (REFACTOR). **This is the TDD moment — point it out to the audience.**
 
 ---
 
@@ -112,7 +178,7 @@ Use the sdd-implement skill to implement the Content Parser.
 Use the sdd-implement skill to implement the remaining tasks: Image Generator and HTML Composer.
 ```
 
-> **What happens:** Agent mocks the Gemini API in tests (asserts on prompts sent, returns canned base64), implements the real service using `@google/genai`, then builds the HTML Composer as a pure transformation. All tests pass.
+> **What happens:** Agent mocks the Gemini API in tests (asserts on prompts sent, returns canned base64), implements the Image Generator with the configurable delay, then builds the HTML Composer with LLM-powered design and fallback. All tests pass.
 
 ---
 
@@ -129,7 +195,7 @@ Use the sdd-verify skill to verify the pipeline.
 ### Step 7: Iterate (~3 min)
 
 ```text
-Actually, we need the Content Parser to also output a "totalSlides" count on each slide for pagination, and the HTML Composer should render a progress bar using it. Use the sdd-iterate skill.
+Actually, we need the Content Generator to also output a "totalSlides" count on each slide for pagination, and the HTML Composer should render a progress bar using it. Use the sdd-iterate skill.
 ```
 
 > **What happens:** Watch! The agent updates `spec.md` FIRST, then updates the `.feature` files, then `plan.md`, then `task.md`, and only THEN modifies the code. **This is the key SDD moment — spec drives everything.**
@@ -193,11 +259,11 @@ Start the dev server. I want to demo the app.
 
 | # | Prompt | Phase | Time |
 |---|--------|-------|------|
-| 1 | Create project + INSTRUCTIONS.md | Setup | 2 min |
-| 2 | sdd-specify: Backend pipeline | Specify | 2 min |
-| 3 | sdd-plan: Architecture | Plan | 1 min |
+| 1 | Create project + INSTRUCTIONS.md + .env.example | Setup | 2 min |
+| 2 | sdd-specify: Backend pipeline (with model names, prompts, GeminiClient) | Specify | 2 min |
+| 3 | sdd-plan: Architecture (with GeminiClient, CLI, testing conventions) | Plan | 1 min |
 | 4 | sdd-tasks: Task list | Tasks | 1 min |
-| 5 | sdd-implement: Content Parser | Implement | 4 min |
+| 5 | sdd-implement: Content Generator | Implement | 4 min |
 | 6 | sdd-implement: Image Gen + Composer | Implement | 4 min |
 | 7 | sdd-verify: Evidence bundle | Verify | 1 min |
 | 8 | sdd-iterate: Add pagination | Iterate | 3 min |
@@ -220,6 +286,33 @@ Buffer of 2 minutes for narration and audience questions.
 
 ---
 
+## Constitution Compliance Checklist
+
+> Use this checklist **after Phase 0** and **after each Specify step** to verify the constitution and spec are complete:
+
+### Constitution (`constitution.md`)
+- [ ] ✅ **Always** tier rules include: versioned prompts, exact model IDs, dependency injection, response cleaning
+- [ ] ⚠️ **Ask first** tier rules include: new dependencies, interface changes
+- [ ] 🚫 **Never** tier rules include: committing secrets, real API calls in tests, code without a spec
+- [ ] Architecture rules define central interface and pipeline structure
+- [ ] Technology stack lists exact libraries, models, and test framework
+- [ ] Forbidden patterns table covers all known anti-patterns
+
+### Spec (`spec.md`) — must align with constitution
+- [ ] **Model names**: Every LLM/API model is identified by exact ID (from constitution)
+- [ ] **LLM prompts**: Every prompt is written out in full and assigned a named constant
+- [ ] **Rate limiting**: Delay/throttle strategy specified with exact values
+- [ ] **Response cleaning**: Post-processing rules for LLM output are explicit
+
+### Plan (`plan.md`) — must align with constitution + spec
+- [ ] **Central interface**: Full TypeScript signature with SDK call patterns
+- [ ] **Testability knobs**: Injectable params for test speed documented
+- [ ] **File structure**: Every file the agent should create is listed
+- [ ] **Testing conventions**: Library, BDD pattern, mocking strategy documented
+- [ ] **Project config**: `tsconfig.json`, `jest.config.ts`, `.env.example` included
+
+---
+
 ## If Something Goes Wrong
 
 **Agent generates code that doesn't pass tests:** Good teaching moment. Say "Watch — it reads the failure, adjusts, and tries again. That's the TDD loop."
@@ -228,6 +321,10 @@ Buffer of 2 minutes for narration and audience questions.
 
 **Agent tries to modify feature files during implementation:** Say "No — the spec is the source of truth. Only implementation changes."
 
+**Agent ignores the constitution:** Say "Read constitution.md first. Step 0." Then reprompt.
+
 **The real Gemini call fails or returns weird images:** Have a backup with pre-generated output. Show it, explain the real call would produce something similar, move on.
 
 **Tests are slow:** Pre-run `npm test` once during setup to warm the cache.
+
+**Spec is missing details (model names, prompts, etc.):** Use the **Constitution Compliance Checklist** above. If items are unchecked, ask the agent to fill the gaps before Plan phase.
