@@ -2,6 +2,8 @@
 
 > Build software with AI agents the right way: spec first, code last.
 
+**[View the talk slides](https://arkatechie.notion.site/How-to-tame-Coding-Agents-with-Spec-Driven-Development-0a81b495c81f4fd2a50f429c48f36457)**
+
 This repo is a live demo and teaching kit for **Spec-Driven Development (SDD)** — a discipline for working with AI coding agents that keeps humans in control of requirements while letting agents handle implementation.
 
 The concrete example app built throughout the demo is a **Slide Creator**: it reads raw markdown content, calls the Gemini API to generate structured slides and AI images, and outputs self-contained HTML presentations.
