@@ -45,20 +45,20 @@ A requirement changed or a test fails unexpectedly
 │   │
 │   └─ (This is essentially a mini SDD cycle: Specify → Plan → Tasks → Implement)
 │
-└── Is a CONSTITUTION RULE wrong? (a project-level principle needs changing)
+├─ Is a CONSTITUTION RULE wrong? (a project-level principle needs changing)
+│   │
+│   └─ Update `constitution.md` FIRST
+│       Then cascade: update spec.md, plan.md, task.md, and code
+│       This is the most impactful change — requires explicit user approval (⚠️ tier)
+│
+└─ Is a CONSTRAINT changing? (e.g., different API, new performance requirement)
     │
-    ├── Update `constitution.md` FIRST
-    │   Then cascade: update spec.md, plan.md, task.md, and code
-    │   This is the most impactful change — requires explicit user approval (⚠️ tier)
+    ├─ Update the Constraints section of spec.md
+    │   Update plan.md (architecture may change)
+    │   Update task.md
+    │   Implement changes
     │
-    └── Is a CONSTRAINT changing? (e.g., different API, new performance requirement)
-        │
-        ├── Update the Constraints section of spec.md
-        │   Update plan.md (architecture may change)
-        │   Update task.md
-        │   Implement changes
-        │
-        └── (Always start from the highest affected artifact)
+    └─ (Always start from the highest affected artifact)
 ```
 
 ## Process
